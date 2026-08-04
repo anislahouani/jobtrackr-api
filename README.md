@@ -46,7 +46,7 @@ Configurations/
 ### 1. Cloner le dépôt
 
 ```bash
-git clone https://github.com/VOTRE_PSEUDO/JobTrackr.Api.git
+git clone https://github.com/anislahouani/JobTrackr.Api.git
 cd JobTrackr.Api
 ```
 
