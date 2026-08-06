@@ -1,11 +1,11 @@
 using System.Text;
+using JobTrackr.Api.Configurations;
 using JobTrackr.Api.Data;
 using JobTrackr.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
-using JobTrackr.Api.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,8 +15,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Services
-builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<JobApplicationService>();
 
 // Authentication
 var jwtKey = builder.Configuration["Jwt:Key"]
@@ -35,8 +36,10 @@ builder.Services
 
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
+
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtKey)),
+                Encoding.UTF8.GetBytes(jwtKey)
+            ),
 
             ClockSkew = TimeSpan.Zero
         };
@@ -45,22 +48,37 @@ builder.Services
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 
+// OpenAPI / Scalar
 builder.Services.AddOpenApi(options =>
 {
     options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
 });
 
-builder.Services.AddScoped<JobApplicationService>();
+// CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Angular", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:4200")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 var app = builder.Build();
 
+// OpenAPI uniquement en développement
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
 
+// Middleware
 app.UseHttpsRedirection();
+
+app.UseCors("Angular");
 
 app.UseAuthentication();
 app.UseAuthorization();
