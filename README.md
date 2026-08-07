@@ -1,137 +1,229 @@
 # JobTrackr API
 
-JobTrackr est une API REST développée en ASP.NET Core permettant de gérer le suivi de candidatures.
+JobTrackr API is the backend service powering the JobTrackr application.
 
-L'objectif de ce projet était de mettre en pratique les bases du développement backend avec .NET : création d'une API, authentification avec JWT, persistance des données avec Entity Framework Core et PostgreSQL, ainsi que la conteneurisation avec Docker.
+It provides authentication, authorization, job application management, persistence, and secure communication with the Angular frontend.
 
-## Fonctionnalités
+---
 
-- Création d'un compte utilisateur
-- Connexion avec authentification JWT
-- Gestion des candidatures (CRUD)
-- Validation des données envoyées à l'API
-- Documentation interactive avec Scalar/OpenAPI
+## Live API
 
-## Stack technique
+https://jobtrackr-api-gwkx.onrender.com
+
+Frontend:
+
+https://jobtrackr-web-navy.vercel.app
+
+---
+
+## Features
+
+- User registration
+- User login
+- JWT authentication
+- Protected endpoints
+- BCrypt password hashing
+- Create, read, update and delete job applications
+- PostgreSQL persistence
+- Entity Framework Core migrations
+- CORS configuration for local and production environments
+- Docker-based deployment
+
+---
+
+## Tech Stack
 
 - ASP.NET Core 10
+- C#
 - Entity Framework Core
 - PostgreSQL
-- JWT Authentication
-- Docker & Docker Compose
-- Scalar (OpenAPI)
+- Npgsql
+- JWT
+- BCrypt
+- Docker
+- Render
+- Neon PostgreSQL
+
+---
 
 ## Architecture
 
-Le projet est organisé de manière simple afin de séparer les responsabilités :
-
+```text
+Angular Frontend
+      │
+      │ HTTPS / JSON
+      ▼
+ASP.NET Core REST API
+      │
+      │ Entity Framework Core
+      ▼
+PostgreSQL
 ```
+
+---
+
+## Project Structure
+
+```text
+Configurations/
 Controllers/
 Data/
 DTOs/
 Enums/
+Extensions/
+Interfaces/
+Mappings/
+Middleware/
+Migrations/
 Models/
+Repositories/
 Services/
-Configurations/
 ```
 
-- **Controllers** : exposent les endpoints de l'API.
-- **Services** : contiennent la logique métier.
-- **Models** : représentent les entités enregistrées en base.
-- **DTOs** : objets utilisés pour les requêtes et les réponses.
-- **Data** : configuration d'Entity Framework Core et du DbContext.
+---
 
-## Lancer le projet
+## Authentication
 
-### 1. Cloner le dépôt
+The API uses JSON Web Tokens for authentication.
+
+After a successful login or registration, the API returns a JWT that must be included in protected requests using the `Authorization` header:
+
+```text
+Authorization: Bearer <token>
+```
+
+Passwords are never stored in plain text. They are hashed using BCrypt before being saved to the database.
+
+---
+
+## Main Endpoints
+
+### Authentication
+
+```text
+POST /api/Auth/register
+POST /api/Auth/login
+```
+
+### Job Applications
+
+```text
+GET    /api/job-applications
+GET    /api/job-applications/{id}
+POST   /api/job-applications
+PUT    /api/job-applications/{id}
+DELETE /api/job-applications/{id}
+```
+
+Job application endpoints require authentication.
+
+---
+
+## Running Locally
+
+Clone the repository:
 
 ```bash
-git clone https://github.com/anislahouani/JobTrackr.Api.git
+git clone https://github.com/anislahouani/jobtrackr-api.git
+
 cd JobTrackr.Api
 ```
 
-### 2. Démarrer PostgreSQL
+Restore dependencies:
 
 ```bash
-docker compose up -d
+dotnet restore
 ```
 
-### 3. Appliquer les migrations
+Configure the PostgreSQL connection string and JWT settings.
+
+A typical development configuration requires:
+
+```text
+ConnectionStrings:DefaultConnection
+Jwt:Key
+Jwt:Issuer
+Jwt:Audience
+```
+
+Apply database migrations:
 
 ```bash
 dotnet ef database update
 ```
 
-### 4. Lancer l'API
+Run the API:
 
 ```bash
 dotnet run
 ```
 
-L'API est ensuite disponible sur :
+The API is available locally at:
 
-```
+```text
 http://localhost:5159
 ```
 
-La documentation interactive est accessible à l'adresse :
+---
 
+## Docker
+
+Build the image:
+
+```bash
+docker build -t jobtrackr-api .
 ```
-http://localhost:5159/scalar/v1
+
+Run the container:
+
+```bash
+docker run -p 8080:8080 jobtrackr-api
 ```
-
-## Authentification
-
-L'API utilise des JSON Web Tokens (JWT).
-
-Le fonctionnement est le suivant :
-
-1. créer un compte (`POST /api/Auth/register`)
-2. se connecter (`POST /api/Auth/login`)
-3. récupérer le token JWT
-4. utiliser ce token avec le schéma Bearer pour accéder aux routes protégées
-
-## Endpoints principaux
-
-### Authentification
-
-| Méthode | Route |
-|---------|-------|
-| POST | /api/Auth/register |
-| POST | /api/Auth/login |
-
-### Candidatures
-
-| Méthode | Route |
-|---------|-------|
-| GET | /api/job-applications |
-| GET | /api/job-applications/{id} |
-| POST | /api/job-applications |
-| PUT | /api/job-applications/{id} |
-| DELETE | /api/job-applications/{id} |
-
-## Ce que j'ai appris
-
-Ce projet m'a permis de découvrir et de mettre en pratique :
-
-- la création d'une API REST avec ASP.NET Core ;
-- Entity Framework Core et les migrations ;
-- PostgreSQL ;
-- l'authentification avec JWT ;
-- l'injection de dépendances ;
-- Docker pour exécuter la base de données ;
-- la documentation d'une API avec OpenAPI/Scalar.
-
-## Améliorations possibles
-
-Quelques pistes d'évolution :
-
-- pagination des candidatures ;
-- recherche et filtres ;
-- rôles utilisateur (Admin/User) ;
-- rafraîchissement des tokens (Refresh Token) ;
-- tests unitaires et d'intégration.
 
 ---
 
-Développé par **Anis Lahouani**.
+## Deployment
+
+The production API is deployed on Render using Docker.
+
+The PostgreSQL database is hosted on Neon.
+
+Production secrets are provided through environment variables and are not stored in the repository.
+
+---
+
+## Related Repository
+
+Frontend:
+
+https://github.com/anislahouani/jobtrackr-web
+
+---
+
+## Roadmap
+
+Planned improvements include:
+
+- Unit tests
+- Integration tests
+- Global exception handling improvements
+- Structured logging
+- CI/CD with GitHub Actions
+- Pagination
+- Improved API documentation
+
+---
+
+## Author
+
+**Anis Lahouani**
+
+GitHub:
+
+https://github.com/anislahouani
+
+---
+
+## License
+
+This project is licensed under the MIT License.
