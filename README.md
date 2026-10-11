@@ -191,6 +191,12 @@ Production secrets are provided through environment variables and are not stored
 
 ---
 
+## CI
+
+GitHub Actions automatically restores dependencies and verifies that the API builds successfully in Release mode on pushes and pull requests to `master`.
+
+---
+
 ## Related Repository
 
 Frontend:
@@ -207,7 +213,6 @@ Planned improvements include:
 - Integration tests
 - Global exception handling improvements
 - Structured logging
-- CI/CD with GitHub Actions
 - Pagination
 - Improved API documentation
 
