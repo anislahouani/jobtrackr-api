@@ -7,7 +7,7 @@ on:
     branches: ["master"]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,8 +19,17 @@ jobs:
         with:
           dotnet-version: "10.0.x"
 
-      - name: Restore dependencies
-        run: dotnet restore
+      - name: Restore API
+        run: dotnet restore JobTrackr.Api.csproj
 
-      - name: Build
-        run: dotnet build --no-restore --configuration Release
+      - name: Restore tests
+        run: dotnet restore tests/JobTrackr.Api.Tests/JobTrackr.Api.Tests.csproj
+
+      - name: Build API
+        run: dotnet build JobTrackr.Api.csproj --no-restore --configuration Release
+
+      - name: Build tests
+        run: dotnet build tests/JobTrackr.Api.Tests/JobTrackr.Api.Tests.csproj --no-restore --configuration Release
+
+      - name: Run tests
+        run: dotnet run --project tests/JobTrackr.Api.Tests/JobTrackr.Api.Tests.csproj --no-build --configuration Release
