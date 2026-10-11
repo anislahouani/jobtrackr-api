@@ -4,6 +4,7 @@ using JobTrackr.Api.Enums;
 using JobTrackr.Api.Models;
 using JobTrackr.Api.Services;
 using Microsoft.EntityFrameworkCore;
+using Xunit;
 
 namespace JobTrackr.Api.Tests;
 
