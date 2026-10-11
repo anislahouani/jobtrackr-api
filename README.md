@@ -125,8 +125,7 @@ Clone the repository:
 
 ```bash
 git clone https://github.com/anislahouani/jobtrackr-api.git
-
-cd JobTrackr.Api
+cd jobtrackr-api
 ```
 
 Restore dependencies:
