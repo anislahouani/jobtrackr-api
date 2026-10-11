@@ -44,6 +44,12 @@ https://jobtrackr-web-navy.vercel.app
 - Render
 - Neon PostgreSQL
 
+### Testing & CI
+
+- xUnit v3
+- Entity Framework Core InMemory
+- GitHub Actions
+
 ---
 
 ## Architecture
@@ -78,6 +84,8 @@ Migrations/
 Models/
 Repositories/
 Services/
+tests/
+  └── JobTrackr.Api.Tests/
 ```
 
 ---
@@ -131,7 +139,8 @@ cd jobtrackr-api
 Restore dependencies:
 
 ```bash
-dotnet restore
+dotnet restore JobTrackr.Api.csproj
+dotnet restore tests/JobTrackr.Api.Tests/JobTrackr.Api.Tests.csproj
 ```
 
 Configure the PostgreSQL connection string and JWT settings.
@@ -165,6 +174,25 @@ http://localhost:5159
 
 ---
 
+## Tests
+
+The test suite currently covers the core `JobApplicationService` business rules, including:
+
+- Application creation and input trimming
+- Per-user data isolation
+- Newest-first ordering
+- Read access protection across users
+- Authorized and unauthorized updates
+- Authorized and unauthorized deletion
+
+Run the suite with:
+
+```bash
+dotnet run --project tests/JobTrackr.Api.Tests/JobTrackr.Api.Tests.csproj
+```
+
+---
+
 ## Docker
 
 Build the image:
@@ -193,7 +221,7 @@ Production secrets are provided through environment variables and are not stored
 
 ## CI
 
-GitHub Actions automatically restores dependencies and verifies that the API builds successfully in Release mode on pushes and pull requests to `master`.
+GitHub Actions automatically restores dependencies, builds the API and test project in Release mode, and executes the backend test suite on pushes and pull requests to `master`.
 
 ---
 
@@ -209,7 +237,6 @@ https://github.com/anislahouani/jobtrackr-web
 
 Planned improvements include:
 
-- Unit tests
 - Integration tests
 - Global exception handling improvements
 - Structured logging
