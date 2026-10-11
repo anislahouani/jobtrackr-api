@@ -22,6 +22,7 @@ public class JobApplicationServiceTests
     [Fact]
     public async Task CreateAsync_PersistsApplication_AndTrimsTextFields()
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         await using var db = CreateDbContext();
         var service = new JobApplicationService(db);
         var userId = Guid.NewGuid();
@@ -36,7 +37,7 @@ public class JobApplicationServiceTests
             Notes = "  Follow up next week  "
         });
 
-        var stored = await db.JobApplications.SingleAsync();
+        var stored = await db.JobApplications.SingleAsync(cancellationToken);
 
         Assert.Equal(userId, stored.UserId);
         Assert.Equal("OpenAI", stored.Company);
@@ -51,6 +52,7 @@ public class JobApplicationServiceTests
     [Fact]
     public async Task GetAllAsync_ReturnsOnlyCurrentUsersApplications_InNewestFirstOrder()
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         await using var db = CreateDbContext();
         var userId = Guid.NewGuid();
         var otherUserId = Guid.NewGuid();
@@ -77,7 +79,7 @@ public class JobApplicationServiceTests
         };
 
         db.JobApplications.AddRange(older, newer, otherUsersApplication);
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(cancellationToken);
 
         var service = new JobApplicationService(db);
         var result = await service.GetAllAsync(userId);
@@ -91,6 +93,7 @@ public class JobApplicationServiceTests
     [Fact]
     public async Task GetByIdAsync_ReturnsNull_WhenApplicationBelongsToAnotherUser()
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         await using var db = CreateDbContext();
         var ownerId = Guid.NewGuid();
         var requesterId = Guid.NewGuid();
@@ -102,7 +105,7 @@ public class JobApplicationServiceTests
         };
 
         db.JobApplications.Add(application);
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(cancellationToken);
 
         var service = new JobApplicationService(db);
         var result = await service.GetByIdAsync(requesterId, application.Id);
@@ -113,6 +116,7 @@ public class JobApplicationServiceTests
     [Fact]
     public async Task UpdateAsync_UpdatesOwnedApplication_AndTrimsFields()
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         await using var db = CreateDbContext();
         var userId = Guid.NewGuid();
         var application = new JobApplication
@@ -123,7 +127,7 @@ public class JobApplicationServiceTests
         };
 
         db.JobApplications.Add(application);
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(cancellationToken);
 
         var service = new JobApplicationService(db);
         var result = await service.UpdateAsync(userId, application.Id, new UpdateJobApplicationRequest
@@ -146,6 +150,7 @@ public class JobApplicationServiceTests
     [Fact]
     public async Task UpdateAsync_ReturnsNull_AndDoesNotModify_WhenApplicationBelongsToAnotherUser()
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         await using var db = CreateDbContext();
         var ownerId = Guid.NewGuid();
         var requesterId = Guid.NewGuid();
@@ -157,7 +162,7 @@ public class JobApplicationServiceTests
         };
 
         db.JobApplications.Add(application);
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(cancellationToken);
 
         var service = new JobApplicationService(db);
         var result = await service.UpdateAsync(requesterId, application.Id, new UpdateJobApplicationRequest
@@ -167,7 +172,7 @@ public class JobApplicationServiceTests
             Status = ApplicationStatus.Offer
         });
 
-        var stored = await db.JobApplications.SingleAsync();
+        var stored = await db.JobApplications.SingleAsync(cancellationToken);
         Assert.Null(result);
         Assert.Equal("Original Corp", stored.Company);
         Assert.Equal("Original Role", stored.Position);
@@ -176,6 +181,7 @@ public class JobApplicationServiceTests
     [Fact]
     public async Task DeleteAsync_DeletesOwnedApplication()
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         await using var db = CreateDbContext();
         var userId = Guid.NewGuid();
         var application = new JobApplication
@@ -186,7 +192,7 @@ public class JobApplicationServiceTests
         };
 
         db.JobApplications.Add(application);
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(cancellationToken);
 
         var service = new JobApplicationService(db);
         var deleted = await service.DeleteAsync(userId, application.Id);
@@ -198,6 +204,7 @@ public class JobApplicationServiceTests
     [Fact]
     public async Task DeleteAsync_ReturnsFalse_AndKeepsApplication_WhenApplicationBelongsToAnotherUser()
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         await using var db = CreateDbContext();
         var ownerId = Guid.NewGuid();
         var requesterId = Guid.NewGuid();
@@ -209,7 +216,7 @@ public class JobApplicationServiceTests
         };
 
         db.JobApplications.Add(application);
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(cancellationToken);
 
         var service = new JobApplicationService(db);
         var deleted = await service.DeleteAsync(requesterId, application.Id);
