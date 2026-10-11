@@ -1,5 +1,7 @@
 # JobTrackr API
 
+[![JobTrackr API CI](https://github.com/anislahouani/jobtrackr-api/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/anislahouani/jobtrackr-api/actions/workflows/ci.yml)
+
 JobTrackr API is the backend service powering the JobTrackr application.
 
 It provides authentication, authorization, job application management, persistence, and secure communication with the Angular frontend.
